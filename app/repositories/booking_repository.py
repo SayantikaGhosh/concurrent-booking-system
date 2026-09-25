@@ -20,3 +20,12 @@ def create_booking(db: Session, user_id, table_id, time_range, status: str, expi
         raise
     db.refresh(booking)
     return booking
+
+def update_booking_status(db: Session, booking_id, new_status):
+    target_booking = db.query(Booking).filter(Booking.booking_id == booking_id).first()
+    if target_booking:
+        target_booking.status = new_status
+        db.commit()
+        return target_booking
+    else:
+        return None

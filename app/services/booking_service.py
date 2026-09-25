@@ -8,8 +8,8 @@ from app.schemas.book_table import BookTableRequest, BookTableResponse
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, timezone
 from psycopg2.extras import DateTimeTZRange
-
-
+from app.repositories.booking_repository import update_booking_status
+from app.services.payment_service import BookingNotFoundError
 class TableUnavailableError(Exception):
     pass
 
@@ -30,6 +30,18 @@ def book_table(db: Session, request: BookTableRequest, user_id: str) -> Booking:
             expiry_time=expiry_time,
         )
     except IntegrityError:
-        raise TableUnavailableError("This table is already booked for the requested time")
-
+        raise TableUnavailableError("This table is already booked for the requested time.")
     return booking
+
+def cancel_booking(db: Session, booking_id: str):
+    updated_booking = update_booking_status(db, booking_id, "cancelled")
+    if updated_booking is None:
+        raise BookingNotFoundError("The booking does not exist.")
+    return updated_booking
+    
+
+
+
+
+
+

@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from app.repositories.payment_repository import create_payment, update_booking_status
-
+from app.repositories.payment_repository import create_payment
+from app.repositories.booking_repository import update_booking_status
 
 class BookingNotFoundError(Exception):
     pass
