@@ -2,7 +2,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.booking import Booking
-
+from datetime import datetime, timezone
 
 def create_booking(db: Session, user_id, table_id, time_range, status: str, expiry_time) -> Booking:
     booking = Booking(
@@ -29,3 +29,16 @@ def update_booking_status(db: Session, booking_id, new_status):
         return target_booking
     else:
         return None
+
+
+def cancel_expired_bookings(db: Session) -> int:
+    expired_bookings = db.query(Booking).filter(
+        Booking.status == "pending",
+        Booking.expiry_time < datetime.now(timezone.utc)
+    ).all()
+
+    for booking in expired_bookings:
+        booking.status = "cancelled"
+
+    db.commit()
+    return len(expired_bookings)
